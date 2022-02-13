@@ -10,10 +10,7 @@
         /// </summary>
         public StreamIdentifier(ulong value)
         {
-            if (value >= (CounterExclusiveUpperBound << 2))
-                throw new ArgumentOutOfRangeException(nameof(value));
-
-            Value = value;
+            Value = new(value);
         }
 
         /// <summary>
@@ -24,23 +21,26 @@
             if (counter >= CounterExclusiveUpperBound)
                 throw new ArgumentOutOfRangeException(nameof(counter));
 
-            Value = (counter << 2) | (isServerInitiated ? 0x1 : 0x0ul) | (isUnidirectional ? 0x2 : 0x0ul);
+            Value = new UInt62
+            {
+                Value = (counter << 2) | (isServerInitiated ? 0x1 : 0x0ul) | (isUnidirectional ? 0x2 : 0x0ul),
+            };
         }
 
         /// <summary>
         /// The underlying value.
         /// </summary>
-        public ulong Value { get; }
+        public UInt62 Value { get; init; }
 
         /// <summary>
         /// The integer counter of the stream identifier within its stream space.
         /// </summary>
-        public ulong Counter => Value >> 2;
+        public ulong Counter => Value.Value >> 2;
 
         /// <summary>
         /// Whether this stream is server-initiated. If <c>false</c>, then this stream is client-initiated.
         /// </summary>
-        public bool IsServerInitiated => (Value & 0x1) != 0;
+        public bool IsServerInitiated => (Value.Value & 0x1) != 0;
 
         /// <summary>
         /// Whether this stream is client-initiated. If <c>false</c>, then this stream is server-initiated.
@@ -50,7 +50,7 @@
         /// <summary>
         /// Whether this stream is unidirectional. If <c>false</c>, then this stream is bidirectional.
         /// </summary>
-        public bool IsUnidirectional => (Value & 0x2) != 0;
+        public bool IsUnidirectional => (Value.Value & 0x2) != 0;
 
         /// <summary>
         /// Whether this stream is bidirectional. If <c>false</c>, then this stream is unidirectional.
